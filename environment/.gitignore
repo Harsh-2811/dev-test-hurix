@@ -16,8 +16,15 @@ distribution-gateway/data/*.json
 distribution-gateway/data/*.db
 !distribution-gateway/data/.gitkeep
 
-# Note: build-time signing keys are generated inside the image, not in this tree,
-# so there is nothing to ignore here.
+# Lockfiles are deliberately not shipped: the Dockerfile uses `npm install`
+# against exact version pins (npm ci would require a lockfile).
+package-lock.json
+distribution-gateway/package-lock.json
+
+# Build-time signing keys are generated inside the image, not in this tree.
+# Guarded anyway: a private key must never be committed.
+*.pem
+keys/
 
 # Logs and OS noise
 *.log

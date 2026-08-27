@@ -108,12 +108,12 @@ You need `openssl` installed. On Windows use **Git Bash**, not `cmd`.
 
 Do not put keys inside the project folder. They could get committed by accident.
 
-This page uses `d:/dev-test-helix/fw-rig`. Change it if you like.
+This page uses `~/fw-rig`. Change it if you like.
 
 ## Step 2.2 — Check if you already made them
 
 ```
-ls d:/dev-test-helix/fw-rig/keys/current
+ls ~/fw-rig/keys/current
 ```
 
 If you see `current.cert.pem` and `current.key.pem`, they already exist.
@@ -126,19 +126,19 @@ If you see `No such file or directory`, keep going.
 Make the folder for the good key:
 
 ```
-mkdir -p d:/dev-test-helix/fw-rig/keys/current
+mkdir -p ~/fw-rig/keys/current
 ```
 
 Make the folder for the old key:
 
 ```
-mkdir -p d:/dev-test-helix/fw-rig/keys/revoked
+mkdir -p ~/fw-rig/keys/revoked
 ```
 
 Make the folder the gateway writes into:
 
 ```
-mkdir -p d:/dev-test-helix/fw-rig/gateway-data
+mkdir -p ~/fw-rig/gateway-data
 ```
 
 ## Step 2.4 — Turn off path rewriting (Git Bash only)
@@ -154,7 +154,7 @@ Skip this on Mac or Linux.
 ## Step 2.5 — Create the current certificate
 
 ```
-openssl req -x509 -newkey rsa:2048 -nodes -sha256 -days 3650 -keyout d:/dev-test-helix/fw-rig/keys/current/current.key.pem -out d:/dev-test-helix/fw-rig/keys/current/current.cert.pem -subj "/CN=fw-signing-2026-current/O=ReleaseEng/C=US"
+openssl req -x509 -newkey rsa:2048 -nodes -sha256 -days 3650 -keyout ~/fw-rig/keys/current/current.key.pem -out ~/fw-rig/keys/current/current.cert.pem -subj "/CN=fw-signing-2026-current/O=ReleaseEng/C=US"
 ```
 
 What the parts mean:
@@ -173,7 +173,7 @@ What the parts mean:
 ## Step 2.6 — Create the revoked certificate
 
 ```
-openssl req -x509 -newkey rsa:2048 -nodes -sha256 -days 3650 -keyout d:/dev-test-helix/fw-rig/keys/revoked/revoked.key.pem -out d:/dev-test-helix/fw-rig/keys/revoked/revoked.cert.pem -subj "/CN=fw-signing-2025-revoked/O=ReleaseEng/C=US"
+openssl req -x509 -newkey rsa:2048 -nodes -sha256 -days 3650 -keyout ~/fw-rig/keys/revoked/revoked.key.pem -out ~/fw-rig/keys/revoked/revoked.cert.pem -subj "/CN=fw-signing-2025-revoked/O=ReleaseEng/C=US"
 ```
 
 This is the "wrong" key. You need it to prove the gateway rejects it.
@@ -187,13 +187,13 @@ Run these one at a time.
 ## Step 3.1 — Are all four files there?
 
 ```
-ls d:/dev-test-helix/fw-rig/keys/current
+ls ~/fw-rig/keys/current
 ```
 
 Expect `current.cert.pem` and `current.key.pem`.
 
 ```
-ls d:/dev-test-helix/fw-rig/keys/revoked
+ls ~/fw-rig/keys/revoked
 ```
 
 Expect `revoked.cert.pem` and `revoked.key.pem`.
@@ -201,7 +201,7 @@ Expect `revoked.cert.pem` and `revoked.key.pem`.
 ## Step 3.2 — Is the name correct?
 
 ```
-openssl x509 -in d:/dev-test-helix/fw-rig/keys/current/current.cert.pem -noout -subject
+openssl x509 -in ~/fw-rig/keys/current/current.cert.pem -noout -subject
 ```
 
 Expect:
@@ -213,7 +213,7 @@ subject=CN = fw-signing-2026-current, O = ReleaseEng, C = US
 ## Step 3.3 — Has it expired?
 
 ```
-openssl x509 -in d:/dev-test-helix/fw-rig/keys/current/current.cert.pem -noout -dates
+openssl x509 -in ~/fw-rig/keys/current/current.cert.pem -noout -dates
 ```
 
 Expect two lines. `notAfter` should be about 10 years from today.
@@ -221,7 +221,7 @@ Expect two lines. `notAfter` should be about 10 years from today.
 ## Step 3.4 — Is the private key valid?
 
 ```
-openssl rsa -in d:/dev-test-helix/fw-rig/keys/current/current.key.pem -check -noout
+openssl rsa -in ~/fw-rig/keys/current/current.key.pem -check -noout
 ```
 
 Expect:
@@ -238,13 +238,13 @@ not work together.
 Get the number from the certificate:
 
 ```
-openssl x509 -in d:/dev-test-helix/fw-rig/keys/current/current.cert.pem -noout -modulus | openssl md5
+openssl x509 -in ~/fw-rig/keys/current/current.cert.pem -noout -modulus | openssl md5
 ```
 
 Get the number from the key:
 
 ```
-openssl rsa -in d:/dev-test-helix/fw-rig/keys/current/current.key.pem -noout -modulus | openssl md5
+openssl rsa -in ~/fw-rig/keys/current/current.key.pem -noout -modulus | openssl md5
 ```
 
 **The two results must be identical.** For example both showing:
@@ -260,13 +260,13 @@ If they differ, delete the folder and do steps 2.3 to 2.6 again.
 Make a small test file:
 
 ```
-printf '%s' 'hello' > d:/dev-test-helix/fw-rig/test.txt
+printf '%s' 'hello' > ~/fw-rig/test.txt
 ```
 
 Sign it with the current key:
 
 ```
-openssl cms -sign -in d:/dev-test-helix/fw-rig/test.txt -signer d:/dev-test-helix/fw-rig/keys/current/current.cert.pem -inkey d:/dev-test-helix/fw-rig/keys/current/current.key.pem -outform PEM -binary -out d:/dev-test-helix/fw-rig/good.sig
+openssl cms -sign -in ~/fw-rig/test.txt -signer ~/fw-rig/keys/current/current.cert.pem -inkey ~/fw-rig/keys/current/current.key.pem -outform PEM -binary -out ~/fw-rig/good.sig
 ```
 
 No message means it worked.
@@ -274,7 +274,7 @@ No message means it worked.
 Now check the signature:
 
 ```
-openssl cms -verify -inform PEM -in d:/dev-test-helix/fw-rig/good.sig -content d:/dev-test-helix/fw-rig/test.txt -certfile d:/dev-test-helix/fw-rig/keys/current/current.cert.pem -CAfile d:/dev-test-helix/fw-rig/keys/current/current.cert.pem -purpose any -no_check_time -binary -out d:/dev-test-helix/fw-rig/out.txt
+openssl cms -verify -inform PEM -in ~/fw-rig/good.sig -content ~/fw-rig/test.txt -certfile ~/fw-rig/keys/current/current.cert.pem -CAfile ~/fw-rig/keys/current/current.cert.pem -purpose any -no_check_time -binary -out ~/fw-rig/out.txt
 ```
 
 Expect:
@@ -290,13 +290,13 @@ Do not use `/dev/null` for `-out` on Windows. OpenSSL cannot write to it.
 Sign the same file with the old key:
 
 ```
-openssl cms -sign -in d:/dev-test-helix/fw-rig/test.txt -signer d:/dev-test-helix/fw-rig/keys/revoked/revoked.cert.pem -inkey d:/dev-test-helix/fw-rig/keys/revoked/revoked.key.pem -outform PEM -binary -out d:/dev-test-helix/fw-rig/bad.sig
+openssl cms -sign -in ~/fw-rig/test.txt -signer ~/fw-rig/keys/revoked/revoked.cert.pem -inkey ~/fw-rig/keys/revoked/revoked.key.pem -outform PEM -binary -out ~/fw-rig/bad.sig
 ```
 
 Now check it against the **current** certificate:
 
 ```
-openssl cms -verify -inform PEM -in d:/dev-test-helix/fw-rig/bad.sig -content d:/dev-test-helix/fw-rig/test.txt -certfile d:/dev-test-helix/fw-rig/keys/current/current.cert.pem -CAfile d:/dev-test-helix/fw-rig/keys/current/current.cert.pem -purpose any -no_check_time -binary -out d:/dev-test-helix/fw-rig/out.txt
+openssl cms -verify -inform PEM -in ~/fw-rig/bad.sig -content ~/fw-rig/test.txt -certfile ~/fw-rig/keys/current/current.cert.pem -CAfile ~/fw-rig/keys/current/current.cert.pem -purpose any -no_check_time -binary -out ~/fw-rig/out.txt
 ```
 
 Expect:
@@ -311,19 +311,19 @@ If this one succeeds, something is wrong — the two certificates are the same.
 ## Step 3.8 — Clean up the test files
 
 ```
-rm -f d:/dev-test-helix/fw-rig/test.txt
+rm -f ~/fw-rig/test.txt
 ```
 
 ```
-rm -f d:/dev-test-helix/fw-rig/good.sig
+rm -f ~/fw-rig/good.sig
 ```
 
 ```
-rm -f d:/dev-test-helix/fw-rig/bad.sig
+rm -f ~/fw-rig/bad.sig
 ```
 
 ```
-rm -f d:/dev-test-helix/fw-rig/out.txt
+rm -f ~/fw-rig/out.txt
 ```
 
 ---
@@ -336,13 +336,13 @@ every submission is rejected with `UNTRUSTED_SIGNATURE`.
 Tell the gateway which certificate to trust:
 
 ```
-export CURRENT_CERT_PATH=d:/dev-test-helix/fw-rig/keys/current/current.cert.pem
+export CURRENT_CERT_PATH=~/fw-rig/keys/current/current.cert.pem
 ```
 
 Tell the gateway where to save its records:
 
 ```
-export GATEWAY_DATA_DIR=d:/dev-test-helix/fw-rig/gateway-data
+export GATEWAY_DATA_DIR=~/fw-rig/gateway-data
 ```
 
 Start the gateway:
@@ -354,7 +354,7 @@ node environment/distribution-gateway/server.js
 Leave it running. In a **second** terminal, tell the publisher where the keys are:
 
 ```
-export KEYS_DIR=d:/dev-test-helix/fw-rig/keys
+export KEYS_DIR=~/fw-rig/keys
 ```
 
 Go to the environment folder:

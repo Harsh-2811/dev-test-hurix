@@ -139,16 +139,47 @@ keys.
   entry_id, must sizes/versions match, are partial withdrawals possible? Only the
   bundle-membership invariant is graded.
 
-### solution — Missing
+### solution — Generated
 
 - **Reference:** <https://www.harborframework.com/docs/tasks>
 
-**Produced files:** _none_ (a stub entrypoint `solution/publish.sh` exists; the
-reference publisher is authored and graded separately by a human and is NOT
-included here.)
+**Produced files:**
+
+- `solution/publish.sh`
+- `solution/publisher/release-publisher.mjs`
+
+The reference publisher lives here and *only* here. `environment/` ships without
+a `publisher/` directory so the empty-run proof is meaningful; `publish.sh`
+installs the implementation into `/app/publisher/` at run time.
 
 **Acceptance criteria:**
 
-- [ ] A reference publisher run in the built container makes tests/test.sh exit zero.
-- [ ] The reference solution signs with the current key so no submission is
+- [x] A reference publisher run in the built container makes tests/test.sh exit zero.
+- [x] The reference solution signs with the current key so no submission is
       rejected as UNTRUSTED_SIGNATURE.
+- [x] `environment/publisher/` is absent from the shipped environment.
+
+### AUTHOR_NOTES.md — Generated
+
+- **Reference:** <https://www.harborframework.com/docs/tasks>
+
+**Produced files:**
+
+- `AUTHOR_NOTES.md`
+
+**Acceptance criteria:**
+
+- [x] Records design rationale, difficulty devices, and how each is graded.
+- [x] Records both proofs (empty run -> 0, solution run -> 1) with the commands used.
+- [x] Restates the two open questions and how grading avoids depending on them.
+
+## Proofs
+
+Run in a clean container built from `environment/Dockerfile`, 2026-08-27.
+
+| Proof | Setup | pytest | Reward |
+| --- | --- | --- | --- |
+| A — empty run | no `/app/publisher/` | 3 passed, 10 errors (exit 1) | **0** |
+| B — solution run | `solution/publish.sh` installs the publisher | 13 passed (exit 0) | **1** |
+
+See [AUTHOR_NOTES.md](AUTHOR_NOTES.md) §7 for the exact commands and output.
